@@ -50,7 +50,8 @@ export async function calculateShipping(
     throw new Error(`Melhor Envio respondeu ${res.status}`);
   }
 
-  const services: MelhorEnvioService[] = await res.json();
+  const raw = await res.json();
+  const services: MelhorEnvioService[] = Array.isArray(raw) ? raw : [raw];
 
   return services
     .filter((s) => !s.error && (s.custom_price || s.price))
