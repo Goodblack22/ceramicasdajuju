@@ -60,6 +60,8 @@ export async function resolveOrderStatus(
     shippingMethod: order.shipping_method,
     captureMethod: order.capture_method,
     paidAt: order.paid_at,
+    fulfillmentStatus: order.fulfillment_status,
+    trackingCode: order.tracking_code,
     items: (items ?? []).map((i) => ({
       productName: i.product_name,
       quantity: i.quantity,

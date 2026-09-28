@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fmtBRL } from "@/lib/pricing";
-import { updateOrderStatus, updateFulfillmentStatus } from "@/app/admin/actions";
+import { updateOrderStatus, updateFulfillmentStatus, updateTrackingCode } from "@/app/admin/actions";
 import type { OrderStatus, FulfillmentStatus } from "@/lib/types";
 
 export const metadata = { title: "Pedido — Cerâmica da Juju" };
@@ -42,6 +42,11 @@ export default async function AdminOrderDetailPage({
   async function setFulfillment(formData: FormData) {
     "use server";
     await updateFulfillmentStatus(id, formData.get("fulfillment_status") as FulfillmentStatus);
+  }
+
+  async function setTracking(formData: FormData) {
+    "use server";
+    await updateTrackingCode(id, (formData.get("tracking_code") as string).trim());
   }
 
   return (
@@ -131,6 +136,20 @@ export default async function AdminOrderDetailPage({
               Salvar
             </button>
           </form>
+
+          <h3 style={{ marginTop: 20 }}>Código de rastreio</h3>
+          <form action={setTracking} className="admin-inline-form">
+            <input
+              type="text"
+              name="tracking_code"
+              defaultValue={order.tracking_code ?? ""}
+              placeholder="Ex: BR123456789BR"
+            />
+            <button type="submit" className="btn btn-outline">
+              Salvar
+            </button>
+          </form>
+          <p className="admin-hint">O cliente vê esse código na página de acompanhamento do pedido dele.</p>
         </div>
       </div>
     </div>

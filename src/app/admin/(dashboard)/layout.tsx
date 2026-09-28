@@ -11,6 +11,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         <div className="admin-brand">Cerâmica da Juju</div>
         <nav className="admin-nav">
           <Link href="/admin">Início</Link>
+          <Link href="/admin/vendas">Vendas</Link>
           <Link href="/admin/pedidos">Pedidos</Link>
           <Link href="/admin/produtos">Produtos</Link>
         </nav>

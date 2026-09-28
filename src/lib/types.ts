@@ -38,5 +38,7 @@ export type OrderStatusResponse = {
   shippingMethod: string | null;
   captureMethod: "credit_card" | "pix" | null;
   paidAt: string | null;
+  fulfillmentStatus: FulfillmentStatus;
+  trackingCode: string | null;
   items: { productName: string; quantity: number; unitPriceCents: number }[];
 };

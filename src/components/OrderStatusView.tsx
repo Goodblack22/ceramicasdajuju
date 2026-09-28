@@ -12,6 +12,12 @@ const STATUS_LABEL: Record<OrderStatusResponse["status"], string> = {
   expired: "Expirado",
 };
 
+const FULFILLMENT_LABEL: Record<OrderStatusResponse["fulfillmentStatus"], string> = {
+  not_shipped: "Em preparação",
+  shipped: "Enviado",
+  delivered: "Entregue",
+};
+
 export default function OrderStatusView({
   orderId,
   initial,
@@ -53,7 +59,25 @@ export default function OrderStatusView({
           </p>
         )}
 
-        <div style={{ textAlign: "left", marginTop: 32, border: "1px solid var(--cream-3)", borderRadius: 10, padding: 24 }}>
+        {status.status === "paid" && (
+          <div style={{ textAlign: "left", marginTop: 24, border: "1px solid var(--cream-3)", borderRadius: 10, padding: 24 }}>
+            <h3 style={{ fontSize: 15, marginBottom: 10 }}>Envio</h3>
+            <p style={{ fontSize: 13.5, color: "#5c4a3a", marginBottom: 4 }}>
+              Status: <strong>{FULFILLMENT_LABEL[status.fulfillmentStatus]}</strong>
+            </p>
+            {status.trackingCode ? (
+              <p style={{ fontSize: 13.5, color: "#5c4a3a" }}>
+                Código de rastreio: <strong>{status.trackingCode}</strong>
+              </p>
+            ) : (
+              <p style={{ fontSize: 13, color: "#8a7a66" }}>
+                O código de rastreio aparece aqui assim que a peça for postada.
+              </p>
+            )}
+          </div>
+        )}
+
+        <div style={{ textAlign: "left", marginTop: 24, border: "1px solid var(--cream-3)", borderRadius: 10, padding: 24 }}>
           {status.items.map((item, i) => (
             <div className="summary-line" key={i}>
               <span>{item.quantity}x {item.productName}</span>

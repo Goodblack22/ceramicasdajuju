@@ -29,6 +29,17 @@ export async function updateFulfillmentStatus(orderId: string, fulfillment_statu
   revalidatePath("/admin/pedidos");
 }
 
+export async function updateTrackingCode(orderId: string, tracking_code: string) {
+  await requireAdmin();
+  const admin = createAdminClient();
+  await admin
+    .from("juju_orders")
+    .update({ tracking_code: tracking_code || null })
+    .eq("id", orderId);
+  revalidatePath(`/admin/pedidos/${orderId}`);
+  revalidatePath(`/pedido/${orderId}`);
+}
+
 export type ProductFormInput = {
   id?: string;
   slug: string;
