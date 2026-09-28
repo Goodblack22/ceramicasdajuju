@@ -28,6 +28,7 @@ export type FreightOption = {
 };
 
 export type OrderStatus = "pending" | "paid" | "canceled" | "expired";
+export type FulfillmentStatus = "not_shipped" | "shipped" | "delivered";
 
 export type OrderStatusResponse = {
   status: OrderStatus;

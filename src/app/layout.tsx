@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
 import { Yellowtail, Playfair_Display, Poppins } from "next/font/google";
-import { CartProvider } from "@/context/CartContext";
-import Topbar from "@/components/Topbar";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
 const yellowtail = Yellowtail({
@@ -33,15 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${yellowtail.variable} ${playfair.variable} ${poppins.variable}`}>
-      <body>
-        <CartProvider>
-          <Topbar />
-          <Header />
-          {children}
-          <Footer />
-          <CartDrawer />
-        </CartProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
