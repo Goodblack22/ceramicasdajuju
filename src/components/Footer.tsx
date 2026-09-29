@@ -59,7 +59,7 @@ export default function Footer() {
           <div>
             <h4>Contato</h4>
             <ul>
-              <li>WhatsApp: (11) 99999-0000</li>
+              <li><a href="https://wa.me/5511989302197" target="_blank" rel="noopener noreferrer">WhatsApp: (11) 98930-2197</a></li>
               <li>contato@ceramicadajuju.com.br</li>
               <li>@ceramicadajuju</li>
               <li>Seg a Sex, 9h–18h</li>

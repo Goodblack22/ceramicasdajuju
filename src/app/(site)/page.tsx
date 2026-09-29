@@ -74,7 +74,7 @@ export default async function HomePage() {
               <a
                 className="btn btn-primary"
                 style={{ background: "var(--white)", color: "var(--brown-dark)" }}
-                href="https://wa.me/5511999990000"
+                href="https://wa.me/5511989302197"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -284,7 +284,7 @@ export default async function HomePage() {
               <a
                 className="btn btn-primary"
                 style={{ alignSelf: "flex-start" }}
-                href="https://wa.me/5511999990000"
+                href="https://wa.me/5511989302197"
                 target="_blank"
                 rel="noopener noreferrer"
               >
