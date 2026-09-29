@@ -50,8 +50,14 @@ export default function CheckoutPage() {
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         }),
       });
-      if (!res.ok) throw new Error();
       const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 400 && data.error) {
+          setFreightError(data.error);
+          return;
+        }
+        throw new Error();
+      }
       setFreightOptions(data.options);
       if (data.options?.length) setSelectedFreight(data.options[0]);
     } catch {

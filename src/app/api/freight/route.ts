@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { calculateShipping } from "@/lib/melhorenvio";
+import { calculateShipping, InvalidCepError } from "@/lib/melhorenvio";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -42,7 +42,14 @@ export async function POST(req: Request) {
   try {
     const options = await calculateShipping(destinationCep, meProducts);
     return NextResponse.json({ options });
-  } catch {
+  } catch (err) {
+    if (err instanceof InvalidCepError) {
+      return NextResponse.json(
+        { error: "CEP não encontrado. Confira o número e tente de novo." },
+        { status: 400 }
+      );
+    }
+    console.error("[freight]", err);
     return NextResponse.json({ error: "Falha ao consultar o frete" }, { status: 502 });
   }
 }

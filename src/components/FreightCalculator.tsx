@@ -32,8 +32,14 @@ export default function FreightCalculator({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ destinationCep: cep, items }),
       });
-      if (!res.ok) throw new Error();
       const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 400 && data.error) {
+          setError(data.error);
+          return;
+        }
+        throw new Error();
+      }
       setOptions(data.options);
       if (data.options?.length && onSelect) onSelect(data.options[0]);
     } catch {

@@ -22,6 +22,8 @@ type MelhorEnvioService = {
   error?: string;
 };
 
+export class InvalidCepError extends Error {}
+
 export async function calculateShipping(
   destinationCep: string,
   products: QuoteProduct[]
@@ -47,7 +49,10 @@ export async function calculateShipping(
   });
 
   if (!res.ok) {
-    throw new Error(`Melhor Envio respondeu ${res.status}`);
+    const body = await res.text();
+    // 422 = CEP de destino inexistente (ex.: CEP genérico de cidade)
+    if (res.status === 422) throw new InvalidCepError(body);
+    throw new Error(`Melhor Envio respondeu ${res.status}: ${body}`);
   }
 
   const raw = await res.json();
