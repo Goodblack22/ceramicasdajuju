@@ -5,18 +5,33 @@ import Link from "next/link";
 import { fmtBRL } from "@/lib/pricing";
 import type { OrderStatusResponse } from "@/lib/types";
 
-const STATUS_LABEL: Record<OrderStatusResponse["status"], string> = {
-  pending: "Aguardando pagamento",
-  paid: "Pagamento confirmado",
-  canceled: "Cancelado",
-  expired: "Expirado",
+const CAPTURE_LABEL: Record<NonNullable<OrderStatusResponse["captureMethod"]>, string> = {
+  pix: "Pix",
+  credit_card: "Cartão de crédito",
 };
 
-const FULFILLMENT_LABEL: Record<OrderStatusResponse["fulfillmentStatus"], string> = {
-  not_shipped: "Em preparação",
-  shipped: "Enviado",
-  delivered: "Entregue",
-};
+const TIMELINE: { key: string; label: string }[] = [
+  { key: "paid", label: "Pagamento confirmado" },
+  { key: "not_shipped", label: "Em preparação" },
+  { key: "shipped", label: "Enviado" },
+  { key: "delivered", label: "Entregue" },
+];
+
+// How far along the timeline the order is (index of the last reached step).
+function timelineIndex(s: OrderStatusResponse): number {
+  if (s.status !== "paid") return -1;
+  if (s.fulfillmentStatus === "delivered") return 3;
+  if (s.fulfillmentStatus === "shipped") return 2;
+  return 1;
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path className="order-check-path" d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
 
 export default function OrderStatusView({
   orderId,
@@ -43,41 +58,77 @@ export default function OrderStatusView({
     return () => clearInterval(interval);
   }, [orderId, status.status]);
 
+  const shortId = orderId.slice(0, 8).toUpperCase();
+  const reached = timelineIndex(status);
+
   return (
     <main className="page-enter">
-      <div className="page-title-block">
-        <span className="eyebrow">Pedido</span>
-        <h1>Status do pedido</h1>
-      </div>
+      <div className="container order-page">
+        <section className={`order-hero ${status.status}`}>
+          {status.status === "paid" && (
+            <>
+              <div className="order-hero-icon paid"><CheckIcon /></div>
+              <span className="eyebrow">Pedido #{shortId}</span>
+              <h1>Obrigada pela sua compra!</h1>
+              <p>
+                Seu pagamento foi confirmado
+                {status.captureMethod ? ` via ${CAPTURE_LABEL[status.captureMethod]}` : ""}.
+                Agora é com a gente: cada peça é embalada à mão, com todo cuidado.
+              </p>
+              <span className="signature">com carinho, Juju</span>
+            </>
+          )}
 
-      <div className="container" style={{ maxWidth: 560, padding: "20px 24px 80px", textAlign: "center" }}>
-        <span className={`status-badge ${status.status}`}>{STATUS_LABEL[status.status]}</span>
+          {status.status === "pending" && (
+            <>
+              <div className="order-hero-icon pending" aria-hidden="true" />
+              <span className="eyebrow">Pedido #{shortId}</span>
+              <h1>Confirmando seu pagamento…</h1>
+              <p>
+                Isso costuma levar poucos segundos. Esta página atualiza sozinha,
+                não precisa recarregar.
+              </p>
+            </>
+          )}
 
-        {status.status === "pending" && (
-          <p style={{ marginTop: 18, color: "#8a7a66", fontSize: 13.5 }}>
-            Assim que o pagamento for confirmado, esta página atualiza automaticamente.
-          </p>
-        )}
+          {(status.status === "canceled" || status.status === "expired") && (
+            <>
+              <span className="eyebrow">Pedido #{shortId}</span>
+              <h1>{status.status === "expired" ? "O pagamento expirou" : "Pedido cancelado"}</h1>
+              <p>
+                Nenhuma cobrança foi feita. Se ainda quiser as peças, é só montar o
+                carrinho de novo.
+              </p>
+            </>
+          )}
+        </section>
 
         {status.status === "paid" && (
-          <div style={{ textAlign: "left", marginTop: 24, border: "1px solid var(--cream-3)", borderRadius: 10, padding: 24 }}>
-            <h3 style={{ fontSize: 15, marginBottom: 10 }}>Envio</h3>
-            <p style={{ fontSize: 13.5, color: "#5c4a3a", marginBottom: 4 }}>
-              Status: <strong>{FULFILLMENT_LABEL[status.fulfillmentStatus]}</strong>
-            </p>
+          <section className="order-card">
+            <h3>Acompanhe seu pedido</h3>
+            <ol className="order-timeline">
+              {TIMELINE.map((step, i) => (
+                <li key={step.key} className={i < reached ? "done" : i === reached ? "current" : ""}>
+                  <span className="dot" aria-hidden="true" />
+                  <span>{step.label}</span>
+                </li>
+              ))}
+            </ol>
             {status.trackingCode ? (
-              <p style={{ fontSize: 13.5, color: "#5c4a3a" }}>
+              <p className="order-tracking">
                 Código de rastreio: <strong>{status.trackingCode}</strong>
               </p>
             ) : (
-              <p style={{ fontSize: 13, color: "#8a7a66" }}>
+              <p className="order-muted">
                 O código de rastreio aparece aqui assim que a peça for postada.
+                Guarde o link desta página.
               </p>
             )}
-          </div>
+          </section>
         )}
 
-        <div style={{ textAlign: "left", marginTop: 24, border: "1px solid var(--cream-3)", borderRadius: 10, padding: 24 }}>
+        <section className="order-card">
+          <h3>Resumo</h3>
           {status.items.map((item, i) => (
             <div className="summary-line" key={i}>
               <span>{item.quantity}x {item.productName}</span>
@@ -96,11 +147,13 @@ export default function OrderStatusView({
             <span>Total</span>
             <span>{fmtBRL(status.totalCents)}</span>
           </div>
-        </div>
+        </section>
 
-        <Link href="/loja" className="btn btn-outline" style={{ marginTop: 28 }}>
-          Voltar para a loja
-        </Link>
+        <div className="order-actions">
+          <Link href="/loja" className={status.status === "paid" ? "btn btn-outline" : "btn btn-primary"}>
+            {status.status === "paid" ? "Continuar comprando" : "Voltar para a loja"}
+          </Link>
+        </div>
       </div>
     </main>
   );

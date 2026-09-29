@@ -6,6 +6,10 @@ import { useCart } from "@/context/CartContext";
 import { cartSubtotalCents } from "@/lib/cart";
 import { fmtBRL } from "@/lib/pricing";
 import type { FreightOption } from "@/lib/types";
+import PaymentHandoff from "@/components/PaymentHandoff";
+
+// Minimum time the handoff screen stays up, so it reads as a step and not a flash.
+const HANDOFF_MIN_MS = 1800;
 
 export default function CheckoutPage() {
   const { items, isHydrated, clearCart } = useCart();
@@ -29,6 +33,7 @@ export default function CheckoutPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [paymentReady, setPaymentReady] = useState(false);
 
   const total = subtotal + (selectedFreight?.priceCents ?? 0);
 
@@ -81,6 +86,8 @@ export default function CheckoutPage() {
     }
 
     setSubmitting(true);
+    setPaymentReady(false);
+    const startedAt = Date.now();
     try {
       const res = await fetch("/api/checkout/create-order", {
         method: "POST",
@@ -107,15 +114,20 @@ export default function CheckoutPage() {
         setSubmitting(false);
         return;
       }
-      clearCart();
-      window.location.href = data.checkoutUrl;
+      setPaymentReady(true);
+      const wait = Math.max(0, HANDOFF_MIN_MS - (Date.now() - startedAt));
+      setTimeout(() => {
+        clearCart();
+        window.location.href = data.checkoutUrl;
+      }, wait);
     } catch {
       setSubmitError("Erro de conexão. Tente novamente.");
       setSubmitting(false);
     }
   }
 
-  if (isHydrated && items.length === 0) {
+  // !submitting: the cart is cleared right before redirecting; keep the handoff on screen.
+  if (isHydrated && items.length === 0 && !submitting) {
     return (
       <main className="page-enter">
         <div className="container" style={{ padding: "60px 24px", textAlign: "center" }}>
@@ -189,8 +201,19 @@ export default function CheckoutPage() {
           {submitError && <div className="error-text">{submitError}</div>}
 
           <button className="btn btn-primary" type="submit" disabled={submitting} style={{ width: "100%" }}>
-            {submitting ? "Gerando pagamento..." : "Ir para pagamento"}
+            {submitting ? "Gerando pagamento..." : "Ir para pagamento seguro"}
           </button>
+
+          <div className="secure-note">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+              <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+            </svg>
+            <span>
+              Pagamento protegido pela <strong>InfinitePay</strong> · Pix ou cartão.
+              Os dados do seu cartão não passam pelo nosso site.
+            </span>
+          </div>
         </div>
 
         <aside className="checkout-summary">
@@ -215,6 +238,8 @@ export default function CheckoutPage() {
           </div>
         </aside>
       </form>
+
+      {submitting && <PaymentHandoff totalCents={total} ready={paymentReady} />}
     </main>
   );
 }

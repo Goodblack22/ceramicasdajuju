@@ -347,3 +347,57 @@ footer{background:var(--white);padding:60px 24px 0;margin-top:0;}
 .admin-image-item img{width:84px;height:84px;object-fit:cover;border-radius:6px;border:1px solid var(--cream-3);}
 .admin-image-item button{width:100%;margin-top:4px;font-size:10.5px;background:none;border:none;color:#a13b2b;cursor:pointer;text-decoration:underline;}
 .admin-hint{font-size:12px;color:#8a7a66;margin-top:6px;}
+
+/* ===== Checkout: selo de segurança + transição para a InfinitePay ===== */
+.secure-note{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:12px 14px;border:1px solid var(--cream-3);border-radius:8px;background:var(--white);font-size:12.5px;color:#5c4a3a;line-height:1.5;}
+.secure-note svg{flex-shrink:0;margin-top:1px;color:var(--olive);}
+
+.pay-handoff{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(250,243,231,.94);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:handoff-in .3s ease-out;}
+@keyframes handoff-in{from{opacity:0;}to{opacity:1;}}
+.pay-handoff-card{width:100%;max-width:400px;text-align:center;background:var(--white);border:1px solid var(--cream-3);border-radius:14px;padding:32px 28px 28px;box-shadow:0 18px 50px -20px rgba(74,46,27,.35);animation:handoff-card .4s cubic-bezier(.2,.8,.2,1);}
+@keyframes handoff-card{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:none;}}
+.pay-handoff-card .word{display:block;font-size:30px;margin-bottom:22px;}
+.pay-handoff-card h2{font-size:21px;margin-bottom:4px;}
+.pay-handoff-ring{position:relative;width:64px;height:64px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;color:var(--brown-mid);}
+.pay-handoff-ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--cream-3);border-top-color:var(--brown-mid);animation:handoff-spin 1s linear infinite;}
+@keyframes handoff-spin{to{transform:rotate(360deg);}}
+.pay-handoff-total{font-size:13.5px;color:#8a7a66;margin-bottom:20px;}
+.pay-handoff-total b{font-family:var(--font-playfair),serif;font-size:17px;color:var(--brown-dark);}
+.pay-handoff-steps,.order-timeline{list-style:none;text-align:left;display:flex;flex-direction:column;gap:10px;}
+.pay-handoff-steps{margin:0 auto 22px;max-width:260px;}
+.pay-handoff-steps li,.order-timeline li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:#b3a48f;transition:color .3s ease;}
+.pay-handoff-steps li.current,.order-timeline li.current{color:var(--brown-dark);font-weight:600;}
+.pay-handoff-steps li.done,.order-timeline li.done{color:#5c4a3a;}
+.pay-handoff-steps .dot,.order-timeline .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--cream-3);background:var(--white);transition:background .3s ease,border-color .3s ease;}
+.pay-handoff-steps li.done .dot,.order-timeline li.done .dot{background:var(--olive);border-color:var(--olive);}
+.pay-handoff-steps li.current .dot{border-color:var(--brown-mid);background:var(--brown-mid);animation:handoff-pulse 1.2s ease-in-out infinite;}
+.order-timeline li.current .dot{border-color:var(--brown-mid);background:var(--brown-mid);}
+@keyframes handoff-pulse{0%,100%{box-shadow:0 0 0 0 rgba(169,114,76,.45);}50%{box-shadow:0 0 0 5px rgba(169,114,76,0);}}
+.pay-handoff-note{font-size:12px;color:#8a7a66;line-height:1.55;border-top:1px solid var(--cream-2);padding-top:16px;}
+
+/* ===== Página do pedido ===== */
+.order-page{max-width:600px;padding:48px 16px 80px;}
+.order-hero{text-align:center;margin-bottom:28px;}
+.order-hero h1{font-size:30px;line-height:1.2;margin-bottom:10px;}
+.order-hero p{font-size:14px;color:#5c4a3a;max-width:440px;margin:0 auto;}
+.order-hero .signature{font-size:26px;margin-top:10px;}
+.order-hero-icon{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;}
+.order-hero-icon.paid{background:var(--olive);color:var(--white);animation:order-pop .45s cubic-bezier(.2,.8,.2,1);}
+@keyframes order-pop{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+.order-check-path{stroke-dasharray:24;stroke-dashoffset:24;animation:order-draw .4s .25s ease-out forwards;}
+@keyframes order-draw{to{stroke-dashoffset:0;}}
+.order-hero-icon.pending{border:2px solid var(--cream-3);border-top-color:var(--brown-mid);animation:handoff-spin 1s linear infinite;}
+.order-card{background:var(--white);border:1px solid var(--cream-3);border-radius:12px;padding:22px 24px;margin-bottom:16px;}
+.order-card h3{font-size:16px;margin-bottom:14px;}
+.order-timeline{margin-bottom:16px;}
+.order-tracking{font-size:13.5px;color:#5c4a3a;}
+.order-muted{font-size:13px;color:#8a7a66;}
+.order-actions{text-align:center;margin-top:24px;}
+@media(max-width:560px){ .order-hero h1{font-size:25px;} .order-card{padding:18px;} .pay-handoff-card{padding:26px 20px 22px;} }
+
+@media (prefers-reduced-motion: reduce){
+  .pay-handoff,.pay-handoff-card,.order-hero-icon.paid{animation:none;}
+  .pay-handoff-ring::before,.order-hero-icon.pending{animation-duration:2.5s;}
+  .pay-handoff-steps li.current .dot{animation:none;}
+  .order-check-path{animation:none;stroke-dashoffset:0;}
+}
