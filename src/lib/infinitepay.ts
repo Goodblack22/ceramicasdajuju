@@ -20,7 +20,9 @@ export type CreatePaymentLinkInput = {
 
 export type CreatePaymentLinkResult = {
   checkoutUrl: string;
-  slug: string;
+  // Not returned by /links in practice (response is just `{ url }`); the real
+  // slug arrives later via the redirect query string and the webhook payload.
+  slug: string | null;
 };
 
 /**
@@ -72,10 +74,10 @@ export async function createPaymentLink(
 
   const data = await res.json();
   const checkoutUrl = data.url ?? data.checkout_url ?? data.link;
-  const slug = data.slug ?? data.id;
+  const slug = data.slug ?? data.id ?? null;
 
-  if (!checkoutUrl || !slug) {
-    throw new Error("InfinitePay /links: resposta sem url/slug esperados");
+  if (!checkoutUrl) {
+    throw new Error("InfinitePay /links: resposta sem url");
   }
 
   return { checkoutUrl, slug };
